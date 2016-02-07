@@ -14,6 +14,9 @@
 #include "addrspace.h"
 #include "synch.h"
 
+#ifdef CHANGED
+ #include "synchconsole.h"
+#endif
 //----------------------------------------------------------------------
 // StartProcess
 //      Run a user program.  Open the executable, load it into
@@ -87,9 +90,59 @@ ConsoleTest (char *in, char *out)
       {
 	  readAvail->P ();	// wait for character to arrive
 	  ch = console->GetChar ();
-	  console->PutChar (ch);	// echo it!
-	  writeDone->P ();	// wait for write to finish
-	  if (ch == 'q')
-	      return;		// if q, quit
-      }
+
+	//  console->PutChar (ch);	// echo it!
+	 // writeDone->P ();	// wait for write to finish
+      #ifdef CHANGED
+          if (ch==EOF )
+              return; 
+          else if(ch=='\n'){
+            console->PutChar (ch);
+            writeDone->P ();
+          }      // if q, quit
+          else{
+            console->PutChar ('<');
+            writeDone->P ();
+            console->PutChar (ch);
+            writeDone->P ();
+            console->PutChar ('>');
+            writeDone->P ();
+          }
+          
+      #else
+           console->PutChar (ch);
+            writeDone->P ();
+          if (ch == 'q')
+          return;       // if q, quit
+         
+      #endif
+  }
+
 }
+
+  #ifdef CHANGED
+    void SynchConsoleTest (char *in, char *out)
+    {
+        char ch;
+        SynchConsole *synchconsole1 = new SynchConsole(in, out);
+        
+      for (;;)
+       {
+         ch = synchconsole1->SynchGetChar();
+          if (ch==EOF ){
+            fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
+              return; 
+          }
+          else if(ch=='\n'){
+              synchconsole1->SynchPutChar(ch);
+          }      // if q, quit
+          else{
+
+              synchconsole1->SynchPutChar('<');
+              synchconsole1->SynchPutChar(ch);
+              synchconsole1->SynchPutChar('>');
+            }
+        }
+        
+    }
+#endif 

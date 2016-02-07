@@ -39,8 +39,11 @@ UpdatePC ()
     pc += 4;
     machine->WriteRegister (NextPCReg, pc);
 }
+#ifdef CHANGED 
+void copyStringFromMachine( int from, char *to, unsigned size);
+void  copyStringToMachine(char *s, char *to, int size);
 
-
+#endif
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -64,11 +67,11 @@ UpdatePC ()
 //      are in machine.h.
 //----------------------------------------------------------------------
 
-void
-ExceptionHandler (ExceptionType which)
+void ExceptionHandler (ExceptionType which)
 {
     int type = machine->ReadRegister (2);
 
+#ifndef CHANGED // Noter le if*n*def
     if ((which == SyscallException) && (type == SC_Halt))
       {
 	  DEBUG ('a', "Shutdown, initiated by user program.\n");
@@ -79,8 +82,93 @@ ExceptionHandler (ExceptionType which)
 	  printf ("Unexpected user mode exception %d %d\n", which, type);
 	  ASSERT (FALSE);
       }
-
     // LB: Do not forget to increment the pc before returning!
     UpdatePC ();
     // End of addition
+
+ #else // CHANGED
+    if (which == SyscallException) {
+
+      switch (type) {
+        case SC_Halt: {
+            DEBUG('a', "Shutdown, initiated by user program.\n");
+            interrupt->Halt();
+            break;
+        }
+        case SC_PutChar: {
+            synchconsole->SynchPutChar ((char)machine->ReadRegister(4));
+            break;
+        }
+         case SC_PutString: {
+
+            char * to = new char[MAX_STRING_SIZE];
+            copyStringFromMachine(machine->ReadRegister(4), to, MAX_STRING_SIZE);
+
+            synchconsole->SynchPutString (to);
+
+            delete[] to;
+            break;
+        }
+            case SC_GetChar: {
+                  machine->WriteRegister(2,(int) synchconsole->SynchGetChar());
+                  break;
+            }
+
+            case SC_GetString : {
+
+                    char *from = (char *) machine->ReadRegister(4);
+                    int taille = (int) machine->ReadRegister(5);
+                    char *buffer = new char[MAX_STRING_SIZE];
+                    synchconsole->SynchGetString(buffer,taille);
+                    copyStringToMachine(buffer,from,taille);
+                    delete [] buffer;
+                    break;
+
+            }
+            case SC_PutInt : {
+
+
+            }
+            case SC_GetInt : {
+
+
+            }            
+
+            case SC_Exit:
+              interrupt->Halt();
+            break;
+            default: {
+                printf("Unexpected user mode exception %d %d\n", which, type);
+                ASSERT(FALSE);
+            }
+      }
+      UpdatePC();
+    }
+  #endif // CHANGED
 }
+
+
+
+
+#ifdef CHANGED
+
+void copyStringFromMachine(int from, char *to, unsigned size){
+  
+  for(unsigned int i=0;i < size && machine->mainMemory[from+i] !='\0';i++){
+    
+    to[i]=(char)machine->mainMemory[from+i];
+  }
+  to[size]='\0';
+}
+void  copyStringToMachine(char *s, char *to, int size) {
+        int i;
+        for(i=0;i<size-1 && s[i] !='\0';i++) {
+                machine->mainMemory[(unsigned)(to+i)] = (char) s[i];
+        }
+        
+        machine->mainMemory[(unsigned)(to+i)] = '\0';
+}
+
+
+#endif
+

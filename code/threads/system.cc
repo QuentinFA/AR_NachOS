@@ -18,6 +18,11 @@ Interrupt *interrupt;		// interrupt status
 Statistics *stats;		// performance metrics
 Timer *timer;			// the hardware timer device,
 					// for invoking context switches
+#ifdef CHANGED
+#ifdef USER_PROGRAM
+SynchConsole *synchconsole;
+#endif
+#endif
 
 #ifdef FILESYS_NEEDED
 FileSystem *fileSystem;
@@ -157,6 +162,9 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
+      #ifdef CHANGED
+	  synchconsole = new SynchConsole(NULL,NULL);
+	  #endif
 #endif
 
 #ifdef FILESYS
@@ -186,6 +194,9 @@ Cleanup ()
 
 #ifdef USER_PROGRAM
     delete machine;
+    #ifdef CHANGED
+    delete synchconsole;
+    #endif
 #endif
 
 #ifdef FILESYS_NEEDED

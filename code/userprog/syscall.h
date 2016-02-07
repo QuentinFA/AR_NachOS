@@ -30,6 +30,16 @@
 #define SC_Fork		9
 #define SC_Yield	10
 
+#ifdef CHANGED
+ 	#define SC_PutChar	11
+ 	#define SC_PutString	12
+ 	#define SC_GetChar	13
+ 	#define SC_GetString	14
+ 	#define SC_PutInt	15
+ 	#define SC_GetInt 	16
+#endif
+
+
 #ifdef IN_USER_MODE
 
 // LB: This part is read only on compiling the test/*.c files.
@@ -46,6 +56,15 @@
  * from the system call entry point in exception.cc.
  */
 
+#ifdef CHANGED
+ //fonction affichant un caractère sur l'écran
+ void PutChar(char c);
+ void PutString(char *s);
+ void GetString(char *c,int n);
+ void GetChar(char *c);
+ void PutInt(int i);
+ int GetInt();
+  #endif
 /* Stop Nachos, and print out performance stats */
 void Halt () __attribute__((noreturn));
 

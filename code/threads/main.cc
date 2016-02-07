@@ -59,6 +59,9 @@
 extern void ThreadTest (void), Copy (const char *unixFile, const char *nachosFile);
 extern void Print (char *file), PerformanceTest (void);
 extern void StartProcess (char *file), ConsoleTest (char *in, char *out);
+#ifdef CHANGED
+extern void SynchConsoleTest (char *in, char *out);
+#endif
 extern void MailTest (int networkID);
 
 //----------------------------------------------------------------------
@@ -100,6 +103,12 @@ main (int argc, char **argv)
 		StartProcess (*(argv + 1));
 		argCount = 2;
 	    }
+	  #ifdef CHANGED
+	   else if(!strcmp (*argv, "-cs")){
+	  		SynchConsoleTest(NULL, NULL);
+	  }
+	  #endif
+
 	  else if (!strcmp (*argv, "-c"))
 	    {			// test the console
 		if (argc == 1)
@@ -122,6 +131,7 @@ main (int argc, char **argv)
 		Copy (*(argv + 1), *(argv + 2));
 		argCount = 3;
 	    }
+
 	  else if (!strcmp (*argv, "-p"))
 	    {			// print a Nachos file
 		ASSERT (argc > 1);
