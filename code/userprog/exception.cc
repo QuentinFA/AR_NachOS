@@ -161,7 +161,8 @@ void ExceptionHandler (ExceptionType which)
       }
    }
    #endif
-
-    // LB: Do not forget to increment the pc before returning!
+       // LB: Do not forget to increment the pc before returning!
     UpdatePC ();
     // End of addition
+}
+
