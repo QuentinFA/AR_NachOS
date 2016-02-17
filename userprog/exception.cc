@@ -1,4 +1,4 @@
-// exception.cc
+// exception.cc 
 //      Entry point into the Nachos kernel from user programs.
 //      There are two kinds of things that can cause control to
 //      transfer back to here from user code:
@@ -9,7 +9,7 @@
 //
 //      exceptions -- The user code does something that the CPU can't handle.
 //      For instance, accessing memory that doesn't exist, arithmetic errors,
-//      etc.
+//      etc.  
 //
 //      Interrupts (which can also cause control to transfer from user
 //      code into the Nachos kernel) are handled elsewhere.
@@ -18,16 +18,12 @@
 // Everything else core dumps.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation
+// All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
-
-#ifdef CHANGED
-   #include "machine.h"
-#endif
 
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -44,21 +40,6 @@ UpdatePC ()
     machine->WriteRegister (NextPCReg, pc);
 }
 
-#ifdef CHANGED
-void copyStringFromMachine(int from, char *to, unsigned size)
-{
-   unsigned i;
-   int v;
-
-   to[size - 1] = '\0';
-
-   for(i = 0; i < size; i++)
-   {
-      machine->ReadMem(((int) from + i), 1, &v);
-      to[i] = (char) v;
-   }
-}
-#endif
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -74,12 +55,12 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 //              arg3 -- r6
 //              arg4 -- r7
 //
-//      The result of the system call, if any, must be put back into r2.
+//      The result of the system call, if any, must be put back into r2. 
 //
 // And don't forget to increment the pc before returning. (Or else you'll
 // loop making the same system call forever!
 //
-//      "which" is the kind of exception.  The list of possible exceptions
+//      "which" is the kind of exception.  The list of possible exceptions 
 //      are in machine.h.
 //----------------------------------------------------------------------
 
@@ -88,7 +69,6 @@ ExceptionHandler (ExceptionType which)
 {
     int type = machine->ReadRegister (2);
 
-    #ifndef CHANGED
     if ((which == SyscallException) && (type == SC_Halt))
       {
 	  DEBUG ('a', "Shutdown, initiated by user program.\n");
@@ -99,71 +79,6 @@ ExceptionHandler (ExceptionType which)
 	  printf ("Unexpected user mode exception %d %d\n", which, type);
 	  ASSERT (FALSE);
       }
-   #else
-   if (which == SyscallException)
-   {
-      switch (type)
-      {
-         case SC_Halt:
-         {
-            DEBUG('a', "Shutdown, initiated by user program.\n");
-            interrupt->Halt();
-            break;
-         }
-         case SC_PutChar:
-         {
-            synchconsole->SynchPutChar((char) machine->ReadRegister(4));
-            break;
-         }
-         case SC_PutString:
-         {
-            char s[MAX_STRING_SIZE];
-            copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
-            synchconsole->SynchPutString(s);
-            break;
-         }
-         case SC_GetChar:
-         {
-            int r = (int) synchconsole->SynchGetChar();
-            machine->WriteRegister(2, r);
-            break;
-         }
-         case SC_GetString:
-         {
-            int sizeMips = machine->ReadRegister(4);
-            int size = machine->ReadRegister(5);
-            char *str = new char[MAX_STRING_SIZE];
-
-            synchconsole->SynchGetString(str, size);
-            copyStringFromMachine(sizeMips, str, size);
-
-            delete[] str;
-
-            break;
-         }
-         case SC_GetInt:
-         {
-            int i;
-            int at = machine->ReadRegister(4);
-
-            synchconsole->SynchGetInt(&i);
-            machine->WriteMem(at, sizeof(int), i);
-
-            break;
-         }
-         case SC_PutInt:
-         {
-            synchconsole->SynchPutInt(machine->ReadRegister(4));
-            break;
-         }
-         default:
-         {
-            printf("Unexpected user mode exception %d %d\n", which, type);
-            ASSERT(FALSE);
-         }
-      }
-   }
-   #endif
 
     // LB: Do not forget to increment the pc before returning!
     UpdatePC ();
