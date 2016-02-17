@@ -1,8 +1,8 @@
-// system.h 
+// system.h
 //      All global variables used in Nachos are defined here.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #ifndef SYSTEM_H
@@ -35,10 +35,11 @@ extern Timer *timer;		// the hardware alarm clock
 #ifdef USER_PROGRAM
 #include "machine.h"
 extern Machine *machine;	// user program memory and registers
-#ifdef CHANGED
-#include "synchconsole.h"
-extern SynchConsole *synchconsole;
-#endif
+	#ifdef CHANGED
+		#include "synchconsole.h"
+		extern SynchConsole *synchconsole;
+		#define MAX_STRING_SIZE 140
+	#endif
 #endif
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB
