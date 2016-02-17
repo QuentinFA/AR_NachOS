@@ -18,11 +18,6 @@ Interrupt *interrupt;		// interrupt status
 Statistics *stats;		// performance metrics
 Timer *timer;			// the hardware timer device,
 					// for invoking context switches
-#ifdef CHANGED
-#ifdef USER_PROGRAM
-SynchConsole *synchconsole;
-#endif
-#endif
 
 #ifdef FILESYS_NEEDED
 FileSystem *fileSystem;

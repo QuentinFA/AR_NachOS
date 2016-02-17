@@ -163,37 +163,6 @@ __main:
         .end    __main
 
 #ifdef CHANGED
-   .globl PutChar
-   .ent	PutChar
-PutChar:
-	addiu $2, $0, SC_PutChar
-	syscall
-	j	$31
-	.end PutChar
-
-   .globl PutString
-   .ent	PutString
-PutString:
-	addiu $2, $0, SC_PutString
-	syscall
-	j	$31
-	.end PutString
-
-   .globl GetChar
-   .ent	GetChar
-GetChar:
-	addiu $2, $0, SC_GetChar
-	syscall
-	j	$31
-	.end GetChar
-
-   .globl GetString
-   .ent	GetString
-GetString:
-	addiu $2, $0, SC_GetString
-	syscall
-	j	$31
-	.end GetString
 
    .globl PutInt
    .ent	PutInt

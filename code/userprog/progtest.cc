@@ -1,11 +1,11 @@
-// progtest.cc
+// progtest.cc 
 //      Test routines for demonstrating that Nachos can load
-//      a user program and execute it.
+//      a user program and execute it.  
 //
 //      Also, routines for testing the Console hardware device.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation
+// All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -31,19 +31,19 @@ StartProcess (char *filename)
 
     if (executable == NULL)
       {
-	  printf ("Unable to open file %s\n", filename);
-	  return;
+    printf ("Unable to open file %s\n", filename);
+    return;
       }
     space = new AddrSpace (executable);
     currentThread->space = space;
 
-    delete executable;		// close file
+    delete executable;    // close file
 
-    space->InitRegisters ();	// set the initial register values
-    space->RestoreState ();	// load page table register
+    space->InitRegisters ();  // set the initial register values
+    space->RestoreState (); // load page table register
 
-    machine->Run ();		// jump to the user progam
-    ASSERT (FALSE);		// machine->Run never returns;
+    machine->Run ();    // jump to the user progam
+    ASSERT (FALSE);   // machine->Run never returns;
     // the address space exits
     // by doing the syscall "exit"
 }
@@ -80,44 +80,22 @@ WriteDone (int arg)
 void
 ConsoleTest (char *in, char *out)
 {
-   char ch;
-   #ifdef CHANGED
-   char p = '\n';
-   #endif
+    char ch;
 
-   console = new Console (in, out, ReadAvail, WriteDone, 0);
-   readAvail = new Semaphore ("read avail", 0);
-   writeDone = new Semaphore ("write done", 0);
+    console = new Console (in, out, ReadAvail, WriteDone, 0);
+    readAvail = new Semaphore ("read avail", 0);
+    writeDone = new Semaphore ("write done", 0);
 
-   for (;;)
-   {
-      readAvail->P ();	// wait for character to arrive
-      ch = console->GetChar ();
-
-      #ifdef CHANGED
-      if(ch != '\n' && in == NULL)
+    for (;;)
       {
-         console->PutChar ('<');
-         writeDone->P ();	// wait for write to finish
-      }
+    readAvail->P ();  // wait for character to arrive
+    ch = console->GetChar ();
 
-      if(ch != EOF)
-      {
-         console->PutChar (ch);
-         writeDone->P ();	// wait for write to finish
-      }
-
-      if(ch != '\n' && in == NULL)
-      {
-<<<<<<< HEAD
-	  readAvail->P ();	// wait for character to arrive
-	  ch = console->GetChar ();
-
-	//  console->PutChar (ch);	// echo it!
-	 // writeDone->P ();	// wait for write to finish
+  //  console->PutChar (ch);  // echo it!
+   // writeDone->P ();  // wait for write to finish
       #ifdef CHANGED
           if (ch==EOF )
-              return;
+              return; 
           else if(ch=='\n'){
             console->PutChar (ch);
             writeDone->P ();
@@ -130,13 +108,13 @@ ConsoleTest (char *in, char *out)
             console->PutChar ('>');
             writeDone->P ();
           }
-
+          
       #else
            console->PutChar (ch);
             writeDone->P ();
           if (ch == 'q')
           return;       // if q, quit
-
+         
       #endif
   }
 
@@ -147,13 +125,13 @@ ConsoleTest (char *in, char *out)
     {
         char ch;
         SynchConsole *synchconsole1 = new SynchConsole(in, out);
-
+        
       for (;;)
        {
          ch = synchconsole1->SynchGetChar();
           if (ch==EOF ){
             fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
-              return;
+              return; 
           }
           else if(ch=='\n'){
               synchconsole1->SynchPutChar(ch);
@@ -165,37 +143,6 @@ ConsoleTest (char *in, char *out)
               synchconsole1->SynchPutChar('>');
             }
         }
-
+        
     }
-#endif
-=======
-         console->PutChar ('>');
-         writeDone->P ();	// wait for write to finish
-      }
-      #else
-      console->PutChar (ch);	// echo it!
-      writeDone->P ();	// wait for write to finish
-      #endif
-
-      #ifdef CHANGED
-      if ((p == '\n' && ch == EOF && in == NULL) || (in != NULL && ch == EOF))		// if ^D, quit
-         return;
-      p = ch;
-      #else
-      if (ch == 'q')		// if q, quit
-         return;
-      #endif
-   }
-}
-
-#ifdef CHANGED
-void SynchConsoleTest(char *in, char *out)
-{
-   char ch;
-   SynchConsole *t_synchconsole = new SynchConsole(in, out);
-   while ((ch = t_synchconsole->SynchGetChar()) != EOF)
-      t_synchconsole->SynchPutChar(ch);
-   fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
-}
-#endif
->>>>>>> master
+#endif 
