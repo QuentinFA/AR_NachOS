@@ -31,6 +31,8 @@ SynchDisk *synchDisk;
 Machine *machine;		// user program memory and registers
    #ifdef CHANGED
       SynchConsole *synchconsole;
+      BitMap *Threads;
+
    #endif
 #endif
 
@@ -162,6 +164,8 @@ Initialize (int argc, char **argv)
     machine = new Machine (debugUserProg);	// this must come first
       #ifdef CHANGED
 	  synchconsole = new SynchConsole(NULL,NULL);
+    Threads = new BitMap( NB_THREAD);
+    Threads->Mark(0);
 	  #endif
 #endif
 
