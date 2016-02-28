@@ -37,8 +37,14 @@
 #define SC_GetString 14
 #define SC_PutInt 15
 #define SC_GetInt 16
+#define SC_UserThreadCreate 17
+#define SC_UserThreadExit 18
 #endif
+
+
 #ifdef IN_USER_MODE
+
+
 
 // LB: This part is read only on compiling the test/*.c files.
 // It is *not* read on compiling test/start.S
@@ -62,6 +68,8 @@
  void GetChar(char *c);
  void PutInt(int i);
  int GetInt();
+ int UserThreadCreate(void f(void *arg), void *arg);
+ void UserThreadExit();
   #endif
 /* Stop Nachos, and print out performance stats */
 void Halt () __attribute__((noreturn));

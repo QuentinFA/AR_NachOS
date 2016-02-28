@@ -27,6 +27,7 @@
 
 #ifdef CHANGED
    #include "machine.h"
+   #include "userThread.h"
 #endif
 
 //----------------------------------------------------------------------
@@ -153,6 +154,27 @@ void ExceptionHandler (ExceptionType which)
             synchconsole->SynchPutInt(machine->ReadRegister(4));
             break;
          }
+         case SC_UserThreadCreate:
+         {
+           int func=machine->ReadRegister(4);
+           int func_arg=machine->ReadRegister(5);
+
+           int ret=do_UserThreadCreate(func, func_arg);
+           if(ret==-1)
+           {
+             printf("thread failed.\n");
+             ASSERT(FALSE);
+           }
+           else{
+                 machine->WriteRegister(2, ret);
+           }
+            break;
+         }
+         case SC_UserThreadExit:
+         {
+            doUserThreadExit();
+            break;
+         }
          default:
          {
             printf("Unexpected user mode exception %d %d\n", which, type);
@@ -165,4 +187,3 @@ void ExceptionHandler (ExceptionType which)
     UpdatePC ();
     // End of addition
 }
-
