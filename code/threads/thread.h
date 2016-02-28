@@ -49,7 +49,9 @@
 // The SPARC and MIPS only need 10 registers, but the Snake needs 18.
 // For simplicity, this is just the max over all architectures.
 #define MachineStateSize 18
-
+#ifdef CHANGED
+#define numPageThread 3
+#endif
 
 // Size of the thread's private execution stack.
 // WATCH OUT IF THIS ISN'T BIG ENOUGH!!!!!
@@ -81,6 +83,9 @@ class Thread
     // THEY MUST be in this position for SWITCH to work.
     int *stackTop;		// the current stack pointer
     int machineState[MachineStateSize];	// all registers except for stackTop
+     #ifdef CHANGED
+     int args;
+     #endif
 
   public:
       Thread (const char *debugName);	// initialize a Thread 
@@ -90,7 +95,9 @@ class Thread
     // is called
 
     // basic thread operations
-
+     #ifdef CHANGED
+     int getArgs();
+     #endif
     void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
     void Yield ();		// Relinquish the CPU if any 
     // other thread is runnable

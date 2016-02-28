@@ -94,7 +94,9 @@ Thread::Fork (VoidFunctionPtr func, int arg)
 {
     DEBUG ('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
 	   name, (int) func, arg);
-
+    #ifdef CHANGED
+     args=arg;
+     #endif
     StackAllocate (func, arg);
 
 #ifdef USER_PROGRAM
@@ -114,6 +116,12 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     // are disabled!
     (void) interrupt->SetLevel (oldLevel);
 }
+
+     #ifdef CHANGED
+     int Thread::getArgs(){
+      return args;
+     }
+     #endif
 
 //----------------------------------------------------------------------
 // Thread::CheckOverflow
