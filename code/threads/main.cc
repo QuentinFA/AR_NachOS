@@ -82,6 +82,8 @@ extern void SynchConsoleTest(char *in, char *out);
 //              ex: "nachos -d +" -> argv = {"nachos", "-d", "+"}
 //----------------------------------------------------------------------
 
+// TODO -rs ?
+
 int
 main (int argc, char **argv)
 {
