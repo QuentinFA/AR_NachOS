@@ -24,7 +24,7 @@ int do_UserThreadCreate(int f, int arg){
 }
 
 void doUserThreadExit(){
-  delete newThread;
+  //delete newThread;
   fc_arg *farg=(fc_arg*)currentThread->getArgs();
   int numThread=farg->numThread;
 

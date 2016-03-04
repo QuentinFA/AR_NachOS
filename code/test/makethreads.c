@@ -4,7 +4,7 @@
 int cenyo = 0;
 
 void newThread(void * arg) {
-    PutString("Hey !\n");
+    PutString("Je fonctionne !\n");
     cenyo++;
     UserThreadExit();
 }
