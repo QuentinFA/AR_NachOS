@@ -1,6 +1,7 @@
 #ifdef CHANGED
 #include "userThread.h"
 #include "system.h"
+#include "addrspace.h"
 
 Thread *newThread;
 int NB_CURRENT=0;
@@ -15,6 +16,8 @@ int do_UserThreadCreate(int f, int arg){
        farg->numThread=numThread;
        newThread=new Thread("newthread");
        newThread->Fork(StartUserThread,(int)farg);
+       currentThread->space->addThread();
+       currentThread->Yield();
        delete farg;
        return numThread;
     }
@@ -24,11 +27,14 @@ int do_UserThreadCreate(int f, int arg){
 }
 
 void doUserThreadExit(){
-  //delete newThread;
+
+
   fc_arg *farg=(fc_arg*)currentThread->getArgs();
   int numThread=farg->numThread;
 
   Threads->Clear(numThread);
+  currentThread->space->removeThread();
+    
   currentThread->Finish();
 }
 

@@ -117,7 +117,7 @@ Initialize (int argc, char **argv)
 		// number generator
 		randomYield = TRUE;
 		argCount = 2;
-	    }
+	  }
 #ifdef USER_PROGRAM
 	  if (!strcmp (*argv, "-s"))
 	      debugUserProg = TRUE;
