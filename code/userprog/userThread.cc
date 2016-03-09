@@ -4,10 +4,8 @@
 #include "addrspace.h"
 
 Thread *newThread;
-int NB_CURRENT=0;
 int numThreadAttenduLocale=-1;
 
-// TODO NB_CURRENT Becomes useless by using a BitMap
 int do_UserThreadCreate(int f, int arg){
    int numThread;
      if((numThread = Threads->Find()) != -1){
@@ -18,7 +16,7 @@ int do_UserThreadCreate(int f, int arg){
        newThread=new Thread("newthread");
        newThread->Fork(StartUserThread,(int)farg);
        currentThread->Yield();
-      currentThread->space->addThread();
+       currentThread->space->addThread();
        delete farg;
        return numThread;
     }
@@ -35,22 +33,19 @@ void do_UserThreadExit(){
   Threads->Clear(numThread);
   currentThread->space->removeThread();
 
-  if(numThreadAttenduLocale!=-1){
   currentThread->space->callJoinV(numThread);
-  numThreadAttenduLocale=-1;
-}
 
   currentThread->Finish();
 }
+
 void do_UserThreadJoin(int numThreadAttendu){
   numThreadAttenduLocale=numThreadAttendu;
   fc_arg *farg=(fc_arg*)currentThread->getArgs();
   int numThread=farg->numThread;
 
-currentThread->space->callJoinP(numThread);
-
-
+  currentThread->space->callJoinP(numThread);
 }
+
  void StartUserThread(int f){
     fc_arg *farg=(fc_arg*)f;
     int func=farg->func;

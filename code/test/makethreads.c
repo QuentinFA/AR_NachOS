@@ -6,12 +6,24 @@ void newThread1(void * arg) {
 //    PutString("fini d'attendre\n");
 
 //UserThreadJoin(1,3);
-    PutString("Thread 1\n");
+    PutChar('2');
+    PutChar('\n');
+    UserThreadJoin(2);
+    PutChar('e');
+    PutChar('\n');
     UserThreadExit();
 }
 void newThread2(void * arg) {
 
     PutString("Thread 2\n");
+    PutChar('\n');
+    PutChar('\n');
+    PutChar('\n');
+    PutChar('\n');
+    PutChar('\n');
+    PutChar('\n');
+    PutChar('\n');
+    //UserThreadJoin(3);
     UserThreadExit();
 }
 void newThread3(void * arg) {
@@ -60,7 +72,7 @@ int main() {
     UserThreadCreate(newThread1, 0);
     UserThreadCreate(newThread2, 0);
     UserThreadCreate(newThread3, 0);
-    UserThreadCreate(newThread4, 0);
+    //UserThreadCreate(newThread4, 0);
   //  UserThreadCreate(newThread5, 0);
 /*    PutString("BonSoir\n");
     UserThreadCreate(newThread6, 0);

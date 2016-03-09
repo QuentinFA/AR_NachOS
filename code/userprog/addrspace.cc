@@ -27,6 +27,7 @@ static Semaphore *mutex;//Semaphore de protection de donnée partagée
 int NumSameSpaceThreads=0;//nombre de threads par addrSpace
 static Semaphore  *AllThreadsDone;
 static Semaphore  *JoinSemaphore[10];
+static int waiting_join[10];
 #endif
 //----------------------------------------------------------------------
 // SwapHeader
@@ -73,7 +74,10 @@ AddrSpace::AddrSpace (OpenFile * executable)
     AllThreadsDone = new Semaphore("AllThreadsDone", 1);
     int n=0;
     for(n=0;n<10;n++)
-    JoinSemaphore[n] = new Semaphore("JoinSemaphore", 1);
+    {
+      JoinSemaphore[n] = new Semaphore("JoinSemaphore", 0);
+      waiting_join[n] = 0;
+    }
     #endif
     NoffHeader noffH;
     unsigned int i, size;
@@ -159,10 +163,15 @@ void AddrSpace::callP(){
   AllThreadsDone->P();
 }
 void AddrSpace::callJoinP(int numThread){
-  JoinSemaphore[numThread]->P();
+   waiting_join[numThread]++;
+   JoinSemaphore[numThread]->P();
 }
 void AddrSpace::callJoinV(int numThread){
-  JoinSemaphore[numThread]->V();
+   while(waiting_join[numThread] > 0)
+   {
+      JoinSemaphore[numThread]->V();
+      waiting_join[numThread]--;
+   }
 }
 #endif
 //----------------------------------------------------------------------

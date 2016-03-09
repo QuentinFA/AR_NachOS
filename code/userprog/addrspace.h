@@ -31,8 +31,8 @@ class AddrSpace
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch
     #ifdef CHANGED
-    static void addThread();//ajoute un au compteur quand un thread est créer
-    static void removeThread();//retir 1 du compteur quand le thread est détruit
+    static void addThread();//ajoute un au compteur quand un thread est créé
+    static void removeThread();//retire 1 du compteur quand le thread est détruit
     static int getNumThread();//renvoie le nombre de thread.
     void callP();
     void callJoinP(int numThread);
