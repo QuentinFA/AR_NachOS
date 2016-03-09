@@ -4,7 +4,6 @@
 #include "addrspace.h"
 
 Thread *newThread;
-int numThreadAttenduLocale=-1;
 
 int do_UserThreadCreate(int f, int arg){
    int numThread;
@@ -39,7 +38,6 @@ void do_UserThreadExit(){
 }
 
 void do_UserThreadJoin(int numThreadAttendu){
-  numThreadAttenduLocale=numThreadAttendu;
   fc_arg *farg=(fc_arg*)currentThread->getArgs();
   int numThread=farg->numThread;
 
@@ -51,6 +49,7 @@ void do_UserThreadJoin(int numThreadAttendu){
     int func=farg->func;
     int arg=farg->arg;
     int numThread=farg->numThread;
+
     currentThread->space->InitRegisters();
     currentThread->space->RestoreState();
 
@@ -59,8 +58,8 @@ void do_UserThreadJoin(int numThreadAttendu){
     machine->WriteRegister(NextPCReg, func + 4);
     machine->WriteRegister(4, arg);
     machine->Run();
-
     delete farg;
+
 }
 
 #endif

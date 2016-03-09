@@ -25,9 +25,9 @@
 #include "synchdisk.h"
 static Semaphore *mutex;//Semaphore de protection de donnée partagée
 int NumSameSpaceThreads=0;//nombre de threads par addrSpace
-static Semaphore  *AllThreadsDone;
-static Semaphore  *JoinSemaphore[10];
-static int waiting_join[10];
+static Semaphore  *AllThreadsDone;//semaphore pour l'attente du thread main
+static Semaphore  *JoinSemaphore[10];//semaphore pour le join d'un thread utilisateur sur un autre thread utilisateur
+static int waiting_join[10];//compte le nombre de join sur un thread
 #endif
 //----------------------------------------------------------------------
 // SwapHeader

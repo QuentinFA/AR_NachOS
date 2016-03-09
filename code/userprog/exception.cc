@@ -105,10 +105,8 @@ void ExceptionHandler (ExceptionType which)
          case SC_Halt:
          {
             DEBUG('a', "Shutdown, initiated by user program.\n");
-        //    while(currentThread->space->getNumThread()!=0)
-      //      currentThread->Yield();
-            currentThread->space->callP();
-            interrupt->Halt();
+            currentThread->space->callP();//wating for all threads t finish
+            interrupt->Halt();//halting
             break;
          }
          case SC_PutChar:
@@ -165,11 +163,8 @@ void ExceptionHandler (ExceptionType which)
            int ret=do_UserThreadCreate(func, func_arg);
            if(ret==-1)
            {
-             printf("Thread failed.\n");
+             printf("Thread Creation failed.\n");
              ASSERT(FALSE);
-           }
-           else{
-                 machine->WriteRegister(2, ret);
            }
             break;
          }
