@@ -8,8 +8,9 @@ struct fc_arg{
   int numThread;
 };
 extern int do_UserThreadCreate(int f, int arg);
-extern void doUserThreadExit();
-int UserThreadCreate(void f(void *arg), void *arg);
+extern void do_UserThreadExit();
+extern void do_UserThreadJoin(int numThreadAttendu);
 void StartUserThread(int f);
+
 #endif
 #endif

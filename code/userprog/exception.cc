@@ -105,8 +105,9 @@ void ExceptionHandler (ExceptionType which)
          case SC_Halt:
          {
             DEBUG('a', "Shutdown, initiated by user program.\n");
-            while(currentThread->space->getNumThread()!=0)
-            currentThread->Yield();
+        //    while(currentThread->space->getNumThread()!=0)
+      //      currentThread->Yield();
+            currentThread->space->callP();
             interrupt->Halt();
             break;
          }
@@ -164,17 +165,23 @@ void ExceptionHandler (ExceptionType which)
            int ret=do_UserThreadCreate(func, func_arg);
            if(ret==-1)
            {
-             printf("thread failed.\n");
+             printf("Thread failed.\n");
              ASSERT(FALSE);
            }
            else{
-              //   machine->WriteRegister(2, ret);
+                 machine->WriteRegister(2, ret);
            }
             break;
          }
          case SC_UserThreadExit:
          {
-            doUserThreadExit();
+            do_UserThreadExit();
+            break;
+         }
+         case SC_UserThreadJoin:
+         {
+
+            do_UserThreadJoin(machine->ReadRegister(4));
             break;
          }
          default:

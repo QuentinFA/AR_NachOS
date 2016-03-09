@@ -3,10 +3,14 @@
 
 
 void newThread1(void * arg) {
+//    PutString("fini d'attendre\n");
+
+//UserThreadJoin(1,3);
     PutString("Thread 1\n");
     UserThreadExit();
 }
 void newThread2(void * arg) {
+
     PutString("Thread 2\n");
     UserThreadExit();
 }
@@ -57,8 +61,8 @@ int main() {
     UserThreadCreate(newThread2, 0);
     UserThreadCreate(newThread3, 0);
     UserThreadCreate(newThread4, 0);
-    UserThreadCreate(newThread5, 0);
-    PutString("BonSoir\n");
+  //  UserThreadCreate(newThread5, 0);
+/*    PutString("BonSoir\n");
     UserThreadCreate(newThread6, 0);
     UserThreadCreate(newThread7, 0);
     UserThreadCreate(newThread8, 0);
@@ -66,7 +70,7 @@ int main() {
     UserThreadCreate(newThread10, 0);
     //UserThreadCreate(newThread11, 0);
     //UserThreadCreate(newThread12, 0);
-
+*/
     Halt();
 }
 #endif

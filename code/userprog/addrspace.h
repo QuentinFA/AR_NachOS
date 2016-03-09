@@ -34,6 +34,9 @@ class AddrSpace
     static void addThread();//ajoute un au compteur quand un thread est créer
     static void removeThread();//retir 1 du compteur quand le thread est détruit
     static int getNumThread();//renvoie le nombre de thread.
+    void callP();
+    void callJoinP(int numThread);
+    void callJoinV(int numThread);
     #endif
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation

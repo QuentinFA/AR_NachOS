@@ -24,7 +24,9 @@
 #ifdef CHANGED
 #include "synchdisk.h"
 static Semaphore *mutex;//Semaphore de protection de donnée partagée
-int NumSameSpaceThreads=0;//nombre de threads par addrSpace 
+int NumSameSpaceThreads=0;//nombre de threads par addrSpace
+static Semaphore  *AllThreadsDone;
+static Semaphore  *JoinSemaphore[10];
 #endif
 //----------------------------------------------------------------------
 // SwapHeader
@@ -68,6 +70,10 @@ AddrSpace::AddrSpace (OpenFile * executable)
 {
     #ifdef CHANGED
     mutex = new Semaphore("mutex", 1);
+    AllThreadsDone = new Semaphore("AllThreadsDone", 1);
+    int n=0;
+    for(n=0;n<10;n++)
+    JoinSemaphore[n] = new Semaphore("JoinSemaphore", 1);
     #endif
     NoffHeader noffH;
     unsigned int i, size;
@@ -133,15 +139,30 @@ AddrSpace::AddrSpace (OpenFile * executable)
 void AddrSpace::addThread(){
   mutex->P();
   NumSameSpaceThreads++;
+  if(NumSameSpaceThreads==1){
+  AllThreadsDone->P();
+}
   mutex->V();
 }
 void AddrSpace::removeThread(){
   mutex->P();
   NumSameSpaceThreads--;
+  if(NumSameSpaceThreads==0){
+  AllThreadsDone->V();
+}
   mutex->V();
 }
 int AddrSpace::getNumThread(){
   return NumSameSpaceThreads;
+}
+void AddrSpace::callP(){
+  AllThreadsDone->P();
+}
+void AddrSpace::callJoinP(int numThread){
+  JoinSemaphore[numThread]->P();
+}
+void AddrSpace::callJoinV(int numThread){
+  JoinSemaphore[numThread]->V();
 }
 #endif
 //----------------------------------------------------------------------
