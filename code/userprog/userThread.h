@@ -6,7 +6,6 @@
      int func;
      int arg;
      int numThread;
-     char name[20];
    };
    int do_UserThreadCreate(int f, int arg);
    void do_UserThreadExit();

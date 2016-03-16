@@ -28,7 +28,6 @@ int NumSameSpaceThreads=0;//nombre de threads par addrSpace
 static Semaphore  *AllThreadsDone;//semaphore pour l'attente du thread main
 static Semaphore  *JoinSemaphore[10];//semaphore pour le join d'un thread utilisateur sur un autre thread utilisateur
 static int waiting_join[10];//compte le nombre de join sur un thread
-static Semaphore *th;
 #endif
 //----------------------------------------------------------------------
 // SwapHeader
@@ -73,7 +72,6 @@ AddrSpace::AddrSpace (OpenFile * executable)
     #ifdef CHANGED
     mutex = new Semaphore("mutex", 1);
     AllThreadsDone = new Semaphore("AllThreadsDone", 1);
-    th = new Semaphore("uniqueThreadCreate", 1);
     int n=0;
     for(n=0;n<10;n++)
     {
@@ -146,16 +144,16 @@ void AddrSpace::addThread(){
   mutex->P();
   NumSameSpaceThreads++;
   if(NumSameSpaceThreads==1){
-    AllThreadsDone->P();
-  }
+  AllThreadsDone->P();
+}
   mutex->V();
 }
 void AddrSpace::removeThread(){
   mutex->P();
   NumSameSpaceThreads--;
   if(NumSameSpaceThreads==0){
-     AllThreadsDone->V();
-  }
+  AllThreadsDone->V();
+}
   mutex->V();
 }
 int AddrSpace::getNumThread(){
@@ -174,16 +172,6 @@ void AddrSpace::callJoinV(int numThread){
       JoinSemaphore[numThread]->V();
       waiting_join[numThread]--;
    }
-}
-
-void AddrSpace::thP()
-{
-   th->P();
-}
-
-void AddrSpace::thV()
-{
-   th->V();
 }
 #endif
 //----------------------------------------------------------------------
