@@ -6,20 +6,26 @@
 Thread *newThread;
 
 int do_UserThreadCreate(int f, int arg){
+
+   currentThread->space->thP();
    int numThread;
      if((numThread = Threads->Find()) != -1){
        fc_arg *farg=new fc_arg;
        farg->func=f;
        farg->arg=arg;
        farg->numThread=numThread;
-       newThread=new Thread("newthread");
+
+       snprintf(farg->name, 20, "newthread%d", numThread);
+
+       newThread=new Thread(farg->name);
        newThread->Fork(StartUserThread,(int)farg);
        currentThread->Yield();
        currentThread->space->addThread();
-       delete farg;
+       currentThread->space->thV();
        return numThread;
     }
     else{
+      currentThread->space->thV();
       return -1;
    }
 }
@@ -38,10 +44,8 @@ void do_UserThreadExit(){
 }
 
 void do_UserThreadJoin(int numThreadAttendu){
-  fc_arg *farg=(fc_arg*)currentThread->getArgs();
-  int numThread=farg->numThread;
-
-  currentThread->space->callJoinP(numThread);
+   if(Threads->Test(numThreadAttendu))
+      currentThread->space->callJoinP(numThreadAttendu);
 }
 
  void StartUserThread(int f){

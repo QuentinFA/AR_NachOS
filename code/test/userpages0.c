@@ -8,7 +8,6 @@ void t1(void *arg)
    {
       PutChar(i + 'a');
    }
-   PutChar('\n');
    UserThreadExit();
 }
 
@@ -19,18 +18,19 @@ void t2(void *arg)
    {
       PutChar('Z' - j);
    }
-   PutChar('\n');
    UserThreadExit();
 }
 
 int main()
 {
-   UserThreadCreate(t1, 0);
-   UserThreadCreate(t2, 0);
+   int pid1;
+   int pid2;
+   pid1 = UserThreadCreate(t1, 0);
+   pid2 = UserThreadCreate(t2, 0);
+   UserThreadJoin(pid1);
+   UserThreadJoin(pid2);
+   PutChar('\n');
    Halt();
 }
 
-
 #endif
-
-

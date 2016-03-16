@@ -17,7 +17,7 @@
 #include "filesys.h"
 
 
-#define UserStackSize		1024	// increase this as necessary!
+#define UserStackSize		1024 * 2	// increase this as necessary!
 class AddrSpace
 {
   public:
@@ -37,6 +37,8 @@ class AddrSpace
     void callP();//appel du semaphore pour bloquer le thread principal tant que le tous les threads n'ont pas fini de d'exécuter
     void callJoinP(int numThread);//semaphore pour le UserThreadJoin
     void callJoinV(int numThread);//semaphore pour le UserThreadJoin
+    void thP();
+    void thV();
     #endif
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
