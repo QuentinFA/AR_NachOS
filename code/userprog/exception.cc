@@ -157,15 +157,17 @@ void ExceptionHandler (ExceptionType which)
          }
          case SC_UserThreadCreate:
          {
-           int func=machine->ReadRegister(4);
-           int func_arg=machine->ReadRegister(5);
+            int func=machine->ReadRegister(4);
+            int func_arg=machine->ReadRegister(5);
 
-           int ret=do_UserThreadCreate(func, func_arg);
-           if(ret==-1)
-           {
-             printf("Thread Creation failed.\n");
-             ASSERT(FALSE);
-           }
+            int ret=do_UserThreadCreate(func, func_arg);
+            if(ret==-1)
+            {
+               printf("Thread Creation failed.\n");
+               ASSERT(FALSE);
+            }
+            else
+               machine->WriteRegister(2, ret);
             break;
          }
          case SC_UserThreadExit:
