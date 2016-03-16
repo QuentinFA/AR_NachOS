@@ -53,8 +53,16 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 
    for(i = 0; i < size; i++)
    {
-      machine->ReadMem(((int) from + i), 1, &v);
-      to[i] = (char) v;
+      if(machine->ReadMem(((int) from + i), 1, &v))
+      {
+        to[i] = (char) v;
+      }
+      else
+      {
+        //TODO traiter (dans exeptionHandler) les erreurs levées par ReadMem
+        printf("une erreur a eu lieu à la copie depuis la machine");
+        return;
+      }
    }
 }
 #endif
@@ -99,6 +107,7 @@ void ExceptionHandler (ExceptionType which)
    #else
    if (which == SyscallException)
    {
+
       switch (type)
       {
          case SC_Halt:
@@ -140,12 +149,16 @@ void ExceptionHandler (ExceptionType which)
          }
          case SC_GetInt:
          {
+            DEBUG('a',"user execption %d %d \n", which, type);
             int i;
+            int valide;
             int at = machine->ReadRegister(4);
-
-            synchconsole->SynchGetInt(&i);
+            DEBUG('a'," apres user execption %d %d \n", which, type);
+            //i = synchconsole->SynchGetInt();
+            valide = synchconsole->SynchGetInt(&i);
             machine->WriteMem(at, sizeof(int), i);
-
+            machine->WriteRegister(2,valide);
+            DEBUG('a',"fin user execption %d %d \n", which, type);
             break;
          }
          case SC_PutInt:

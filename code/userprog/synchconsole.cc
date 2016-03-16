@@ -98,11 +98,33 @@ void SynchConsole::SynchPutInt(int n)
    w->V();
 }
 
+/* 
 void SynchConsole::SynchGetInt(int *n)
 {
    r->P();
    sscanf(0, "%d", n);
    r->V();
+}
+*/
+
+int SynchConsole::SynchGetInt(int* res)
+{
+   //char str[MAX_STRING_SIZE];
+   char c;
+   int n = 0;
+   int valide = 1;
+   while(true)
+   {
+      readAvail->P();
+      c = console->GetChar();
+      if(c == EOF || c == '\n')
+         break;
+      if( valide && (0 >= c - '0' || 9 < c-'0'))
+         valide = 0;
+      n = 10*n + (c - '0');
+   }
+   *res = n;
+   return valide;
 }
 
 #endif

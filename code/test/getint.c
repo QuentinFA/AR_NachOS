@@ -4,9 +4,15 @@
 
 int main()
 {
-   int i;
-   GetInt(&i);
+   int i = 420;
+   int res;
    PutInt(i);
+   PutChar('\n');
+   res = GetInt(&i);
+   if(!res)
+   		PutString("YEAH MADAFAKA\n");
+   PutInt(i);
+   PutChar('a');
    Halt();
 }
 
