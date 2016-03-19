@@ -41,7 +41,7 @@ extern Machine *machine;	// user program memory and registers
 		#include "bitmap.h"
 		extern BitMap *Threads;
 
-		#include "userThread.h" 
+		#include "userThread.h"
 	#endif
 #endif
 
