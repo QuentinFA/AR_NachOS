@@ -60,11 +60,33 @@ void copyStringFromMachine(int from, char *to, unsigned size)
       else
       {
         //TODO traiter (dans exeptionHandler) les erreurs levées par ReadMem
-        printf("une erreur a eu lieu à la copie depuis la machine");
+        DEBUG('u',"Erreur pendant la lecture depuis la machine");
         return;
       }
    }
 }
+
+void copyStringToMachine(int to,char* from, unsigned size){
+  unsigned nbWr = 0;
+  int next;
+  for (; nbWr < size -1; nbWr++)
+  {
+    next = (int) from[nbWr];
+    if (next == '\0' || next == EOF || next == '\n'){
+      break;
+    }
+    if (!(machine->WriteMem(to+nbWr,1,next))){
+      DEBUG('s',"Erreur pendant l'écriture dans la machine");
+      ASSERT(FALSE)
+    }
+  }
+  if (!(machine->WriteMem(to+nbWr,1,'\0'))){
+      DEBUG('s',"Erreur pendant l'écriture dans la machine");
+      ASSERT(FALSE)
+  }
+}
+
+
 #endif
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -107,6 +129,7 @@ void ExceptionHandler (ExceptionType which)
    #else
    if (which == SyscallException)
    {
+      DEBUG('s'," SC number : %i ",type);
 
       switch (type)
       {
@@ -126,7 +149,9 @@ void ExceptionHandler (ExceptionType which)
             char s[MAX_STRING_SIZE];
             copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
             synchconsole->SynchPutString(s);
+            DEBUG('s',"apres appel SC_PutString just before break");
             break;
+
          }
          case SC_GetChar:
          {
@@ -141,7 +166,7 @@ void ExceptionHandler (ExceptionType which)
             char *str = new char[MAX_STRING_SIZE];
 
             synchconsole->SynchGetString(str, size);
-            copyStringFromMachine(sizeMips, str, size);
+            copyStringToMachine(sizeMips, str, size);
 
             delete[] str;
 
@@ -149,16 +174,13 @@ void ExceptionHandler (ExceptionType which)
          }
          case SC_GetInt:
          {
-            DEBUG('a',"user execption %d %d \n", which, type);
             int i;
             int valide;
             int at = machine->ReadRegister(4);
-            DEBUG('a'," apres user execption %d %d \n", which, type);
             //i = synchconsole->SynchGetInt();
             valide = synchconsole->SynchGetInt(&i);
             machine->WriteMem(at, sizeof(int), i);
             machine->WriteRegister(2,valide);
-            DEBUG('a',"fin user execption %d %d \n", which, type);
             break;
          }
          case SC_PutInt:
