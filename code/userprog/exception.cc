@@ -46,6 +46,21 @@ UpdatePC ()
 #ifdef CHANGED
 void copyStringFromMachine(int from, char *to, unsigned size)
 {
+
+   unsigned i = 0 ;
+   int v = 0;
+
+   do
+     {
+       machine->ReadMem ((int) from+i, 1, &v) ;
+       to [i] = (char) v ;
+       i = i + 1 ;
+     }
+   while ((i < size) && (v != 0)) ;
+     
+   to [i] = 0 ; 
+
+   /*
    unsigned i;
    int v;
 
@@ -64,6 +79,7 @@ void copyStringFromMachine(int from, char *to, unsigned size)
         return;
       }
    }
+   */
 }
 
 void copyStringToMachine(int to,char* from, unsigned size){
@@ -149,7 +165,6 @@ void ExceptionHandler (ExceptionType which)
             char s[MAX_STRING_SIZE];
             copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
             synchconsole->SynchPutString(s);
-            DEBUG('s',"apres appel SC_PutString just before break");
             break;
 
          }

@@ -90,6 +90,7 @@ Console::CheckCharAvail()
     int n;
 
     // schedule the next time to poll for a packet
+    //if thread aive 
     interrupt->Schedule(ConsoleReadPoll, (int)this, ConsoleTime,
 			ConsoleReadInt);
 
@@ -128,10 +129,15 @@ Console::WriteDone()
 char
 Console::GetChar()
 {
+    
    char ch = incoming;
-
    incoming = EOF;
+    #ifdef CHANGED
+    DEBUG('s',",%c",ch);
+    #endif
    return ch;
+
+
 }
 
 //----------------------------------------------------------------------
@@ -143,6 +149,9 @@ Console::GetChar()
 void
 Console::PutChar(char ch)
 {
+     #ifdef CHANGED
+    DEBUG('s',"(%i)",ch);
+    #endif
     ASSERT(putBusy == FALSE);
     WriteFile(writeFileNo, &ch, sizeof(char));
     putBusy = TRUE;

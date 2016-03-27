@@ -7,11 +7,10 @@
 
 static Semaphore *readAvail;
 static Semaphore *writeDone;
-static Semaphore *r;
-static Semaphore *w;
 
 static void ReadAvail(int arg)
 {
+   DEBUG('s',"=======>readAvail\n");
    readAvail->V();
 }
 
@@ -24,8 +23,6 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
    readAvail = new Semaphore("read avail", 0);
    writeDone = new Semaphore("write done", 0);
-   r = new Semaphore("read", 1);
-   w = new Semaphore("write", 1);
    console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
 }
 
@@ -38,48 +35,46 @@ SynchConsole::~SynchConsole()
 
 void SynchConsole::SynchPutChar(const char ch)
 {
-   w->P();
    console->PutChar(ch);
    writeDone->P();
-   w->V();
 }
 
 char SynchConsole::SynchGetChar()
 {
-   r->P();
+   DEBUG('s'," ====>SynchGetChar \n");
    readAvail->P();
-   char c = console->GetChar();
-   r->V();
-   return c;
+   return console->GetChar();
 }
 
 void SynchConsole::SynchPutString(const char s[])
 {
    int i;
-   w->P();
-   for(i = 0; s[i] != '\0' && i < MAX_STRING_SIZE; i++)
+   for(i = 0; i < MAX_STRING_SIZE; i++)
    {
       console->PutChar(s[i]);
       writeDone->P();
+      if(s[i] == '\0')
+         break;
    }
-   w->V();
+   DEBUG('s',"fin SynchPutString\n");
 }
 
 void SynchConsole::SynchGetString(char *s, int n)
 {
    int i = 0;
-   r->P();
 
    while(i < n && i < MAX_STRING_SIZE)
    {
       readAvail->P();
+      DEBUG('s',"avant GetChar %i \n", i );
       s[i] = console->GetChar();
-      i++;
-      if(s[i] == EOF || s[i] == '\n')
+      DEBUG('s',"==>apres getchar %i : %i\n", i, s[i]);
+      if(s[i] == EOF || s[i] == '\n'){
          break;
+      }
+      i++;
    }
    s[i] = '\0';
-   r->V();
 }
 
 void SynchConsole::SynchPutInt(int n)
@@ -89,23 +84,12 @@ void SynchConsole::SynchPutInt(int n)
 
    snprintf(str, MAX_STRING_SIZE, "%d", n);
 
-   w->P();
    for(i = 0; i < (int) strlen(str); i++)
    {
       console->PutChar(str[i]);
       writeDone->P();
    }
-   w->V();
 }
-
-/* 
-void SynchConsole::SynchGetInt(int *n)
-{
-   r->P();
-   sscanf(0, "%d", n);
-   r->V();
-}
-*/
 
 int SynchConsole::SynchGetInt(int* res)
 {
