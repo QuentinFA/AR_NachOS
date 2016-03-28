@@ -135,13 +135,13 @@ void ExceptionHandler (ExceptionType which)
     #ifndef CHANGED
     if ((which == SyscallException) && (type == SC_Halt))
       {
-	  DEBUG ('a', "Shutdown, initiated by user program.\n");
-	  interrupt->Halt ();
+      	  DEBUG ('a', "Shutdown, initiated by user program.\n");
+      	  interrupt->Halt ();
       }
     else
       {
-	  printf ("Unexpected user mode exception %d %d\n", which, type);
-	  ASSERT (FALSE);
+      	  printf ("Unexpected user mode exception %d %d\n", which, type);
+      	  ASSERT (FALSE);
       }
    #else
    if (which == SyscallException)
@@ -153,7 +153,8 @@ void ExceptionHandler (ExceptionType which)
          case SC_Halt:
          {
             DEBUG('a', "Shutdown, initiated by user program.\n");
-            interrupt->Halt();
+            currentThread->space->callP();//wating for all threads t finish
+            interrupt->Halt();//halting
             break;
          }
          case SC_PutChar:

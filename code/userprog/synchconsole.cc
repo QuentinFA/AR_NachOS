@@ -59,6 +59,7 @@ void SynchConsole::SynchPutString(const char s[])
 {
   write->P();
    int i;
+
    for(i = 0; i < MAX_STRING_SIZE; i++)
    {
       console->PutChar(s[i]);
@@ -73,6 +74,7 @@ void SynchConsole::SynchPutString(const char s[])
 void SynchConsole::SynchGetString(char *s, int n)
 {
   write->P();
+
   int i = 0;
 
    while(i < n && i < MAX_STRING_SIZE)
@@ -87,7 +89,7 @@ void SynchConsole::SynchGetString(char *s, int n)
    }
    s[i] = '\0';
 
-  write->V();
+   write->V();
 }
 
 void SynchConsole::SynchPutInt(int n)
