@@ -21,7 +21,7 @@ class SynchConsole {
       void SynchGetString(char *s, int n);
 
       void SynchPutInt(int n);
-      void SynchGetInt(int *n);
+      int SynchGetInt(int* res);
 
 
    private:
