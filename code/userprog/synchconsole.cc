@@ -8,8 +8,6 @@
 static Semaphore *readAvail;
 static Semaphore *writeDone;
 
-static Semaphore *lecture;
-static Semaphore *lectureAll;
 static void ReadAvail(int arg)
 {
    readAvail->V();
@@ -25,8 +23,8 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
    readAvail = new Semaphore("read avail", 0);
    writeDone = new Semaphore("write done", 0);
 
-   lecture = new Semaphore("lecture", 1);
-   lectureAll = new Semaphore("lectureAll", 1);
+   read = new Semaphore("read", 1);
+   write = new Semaphore("write", 1);
    console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
 }
 
@@ -39,53 +37,96 @@ SynchConsole::~SynchConsole()
 
 void SynchConsole::SynchPutChar(const char ch)
 {
-   lecture->P();
+   read->P();
 
    console->PutChar(ch);
    writeDone->P();
 
-   lecture->V();
+   read->V();
 }
 
 char SynchConsole::SynchGetChar()
 {
-   lecture->P();
+   read->P();
 
    readAvail->P();
    char ret=console->GetChar();
-   lecture->V();
+   read->V();
    return ret;
 }
 
 void SynchConsole::SynchPutString(const char s[])
 {
-  lectureAll->P();
+  write->P();
    int i;
-   for(i = 0; s[i] != '\0' && i < MAX_STRING_SIZE; i++)
-      SynchPutChar(s[i]);
-  lectureAll->V();
+
+   for(i = 0; i < MAX_STRING_SIZE; i++)
+   {
+      console->PutChar(s[i]);
+      writeDone->P();
+      if(s[i] == '\0')
+         break;
+   }
+
+  write->V();
 }
 
 void SynchConsole::SynchGetString(char *s, int n)
 {
-  lectureAll->P();
-   int i;
-   for(i = 0; i < n; i++)
-      s[i] = SynchGetChar();
-  lectureAll->V();
+  write->P();
+
+  int i = 0;
+
+   while(i < n && i < MAX_STRING_SIZE)
+   {
+      readAvail->P();
+      DEBUG('s',"avant GetChar %i \n", i );
+      s[i] = console->GetChar();
+      DEBUG('s',"==>apres getchar %i : %i\n", i, s[i]);
+      if(s[i] == EOF || s[i] == '\n')
+         break;
+      i++;
+   }
+   s[i] = '\0';
+
+   write->V();
 }
 
 void SynchConsole::SynchPutInt(int n)
 {
    char str[MAX_STRING_SIZE];
+   int i;
 
    snprintf(str, MAX_STRING_SIZE, "%d", n);
-   SynchPutString(str);
+
+   write->P();
+   for(i = 0; i < (int) strlen(str); i++)
+   {
+      console->PutChar(str[i]);
+      writeDone->P();
+   }
+   write->V();
+
 }
 
-void SynchConsole::SynchGetInt(int *n)
+int SynchConsole::SynchGetInt(int* res)
 {
-   sscanf(0, "%d", n);
+   // TODO Use of read Semephore
+   char c;
+   int n = 0;
+   int valide = 1;
+   while(true)
+   {
+      readAvail->P();
+      c = console->GetChar();
+      if(c == EOF || c == '\n')
+         break;
+      if( valide && (0 >= c - '0' || 9 < c-'0'))
+         valide = 0;
+      n = 10*n + (c - '0');
+   }
+   *res = n;
+   return valide;
 }
 
 #endif

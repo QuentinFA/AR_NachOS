@@ -5,6 +5,7 @@
 #include "copyright.h"
 #include "utility.h"
 #include "console.h"
+#include "synch.h"
 
 class SynchConsole {
    public:
@@ -20,11 +21,13 @@ class SynchConsole {
       void SynchGetString(char *s, int n);
 
       void SynchPutInt(int n);
-      void SynchGetInt(int *n);
+      int SynchGetInt(int* res);
 
 
    private:
       Console *console;
+      Semaphore *read;
+      Semaphore *write;
 };
 
 #endif // SYNCHCONSOLE_H

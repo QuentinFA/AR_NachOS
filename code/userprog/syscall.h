@@ -67,7 +67,7 @@
  void PutChar(char c);
  void PutString(char *s);
  void GetString(char *c,int n);
- void GetChar(char *c);
+ char GetChar();
  void PutInt(int i);
  int GetInt();
  int UserThreadCreate(void f(void *arg), void *arg);
