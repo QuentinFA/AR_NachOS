@@ -27,6 +27,7 @@
 
 #ifdef CHANGED
    #include "machine.h"
+   #include "userThread.h"
 #endif
 
 //----------------------------------------------------------------------
@@ -57,8 +58,8 @@ void copyStringFromMachine(int from, char *to, unsigned size)
        i = i + 1 ;
      }
    while ((i < size) && (v != 0)) ;
-     
-   to [i] = 0 ; 
+
+   to [i] = 0 ;
 
    /*
    unsigned i;
@@ -203,6 +204,32 @@ void ExceptionHandler (ExceptionType which)
             synchconsole->SynchPutInt(machine->ReadRegister(4));
             break;
          }
+         case SC_UserThreadCreate:
+         {
+            int func=machine->ReadRegister(4);
+            int func_arg=machine->ReadRegister(5);
+
+            int ret=do_UserThreadCreate(func, func_arg);
+            if(ret==-1)
+            {
+               printf("Thread Creation failed.\n");
+               ASSERT(FALSE);
+            }
+            else
+               machine->WriteRegister(2, ret);
+            break;
+         }
+         case SC_UserThreadExit:
+         {
+            do_UserThreadExit();
+            break;
+         }
+         case SC_UserThreadJoin:
+         {
+
+            do_UserThreadJoin(machine->ReadRegister(4));
+            break;
+         }
          default:
          {
             printf("Unexpected user mode exception %d %d\n", which, type);
@@ -215,4 +242,3 @@ void ExceptionHandler (ExceptionType which)
     UpdatePC ();
     // End of addition
 }
-

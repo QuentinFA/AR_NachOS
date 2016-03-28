@@ -36,6 +36,12 @@ extern Machine *machine;	// user program memory and registers
 		#include "synchconsole.h"
 		extern SynchConsole *synchconsole;
 		#define MAX_STRING_SIZE 140
+		#define NB_THREAD 10
+
+		#include "bitmap.h"
+		extern BitMap *Threads;
+
+		#include "userThread.h" 
 	#endif
 #endif
 

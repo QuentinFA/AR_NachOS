@@ -1,9 +1,9 @@
-// addrspace.cc 
+// addrspace.cc
 //      Routines to manage address spaces (executing user programs).
 //
 //      In order to run a user program, you must:
 //
-//      1. link with the -N -T 0 option 
+//      1. link with the -N -T 0 option
 //      2. run coff2noff to convert the object file to Nachos format
 //              (Nachos object code format is essentially just a simpler
 //              version of the UNIX executable object code format)
@@ -12,7 +12,7 @@
 //              don't need to do this last step)
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -21,10 +21,18 @@
 #include "noff.h"
 
 #include <strings.h>		/* for bzero */
-
+#ifdef CHANGED
+#include "synchdisk.h"
+static Semaphore *mutex;//Semaphore de protection de donnée partagée
+int NumSameSpaceThreads=0;//nombre de threads par addrSpace
+static Semaphore  *AllThreadsDone;//semaphore pour l'attente du thread main
+static Semaphore  *JoinSemaphore[10];//semaphore pour le join d'un thread utilisateur sur un autre thread utilisateur
+static int waiting_join[10];//compte le nombre de join sur un thread
+static Semaphore *th;
+#endif
 //----------------------------------------------------------------------
 // SwapHeader
-//      Do little endian to big endian conversion on the bytes in the 
+//      Do little endian to big endian conversion on the bytes in the
 //      object file header, in case the file was generated on a little
 //      endian machine, and we're now running on a big endian machine.
 //----------------------------------------------------------------------
@@ -53,7 +61,7 @@ SwapHeader (NoffHeader * noffH)
 //
 //      Assumes that the object code file is in NOFF format.
 //
-//      First, set up the translation from program memory to physical 
+//      First, set up the translation from program memory to physical
 //      memory.  For now, this is really simple (1:1), since we are
 //      only uniprogramming, and we have a single unsegmented page table
 //
@@ -62,6 +70,17 @@ SwapHeader (NoffHeader * noffH)
 
 AddrSpace::AddrSpace (OpenFile * executable)
 {
+    #ifdef CHANGED
+    mutex = new Semaphore("mutex", 1);
+    AllThreadsDone = new Semaphore("AllThreadsDone", 1);
+    th = new Semaphore("uniqueThreadCreate", 1);
+    int n=0;
+    for(n=0;n<10;n++)
+    {
+      JoinSemaphore[n] = new Semaphore("JoinSemaphore", 0);
+      waiting_join[n] = 0;
+    }
+    #endif
     NoffHeader noffH;
     unsigned int i, size;
 
@@ -84,7 +103,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 
     DEBUG ('a', "Initializing address space, num pages %d, size %d\n",
 	   numPages, size);
-// first, set up the translation 
+// first, set up the translation
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++)
       {
@@ -93,12 +112,12 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	  pageTable[i].valid = TRUE;
 	  pageTable[i].use = FALSE;
 	  pageTable[i].dirty = FALSE;
-	  pageTable[i].readOnly = FALSE;	// if the code segment was entirely on 
-	  // a separate page, we could set its 
+	  pageTable[i].readOnly = FALSE;	// if the code segment was entirely on
+	  // a separate page, we could set its
 	  // pages to be read-only
       }
 
-// zero out the entire address space, to zero the unitialized data segment 
+// zero out the entire address space, to zero the unitialized data segment
 // and the stack segment
     bzero (machine->mainMemory, size);
 
@@ -122,6 +141,51 @@ AddrSpace::AddrSpace (OpenFile * executable)
 
 }
 
+#ifdef CHANGED
+void AddrSpace::addThread(){
+  mutex->P();
+  NumSameSpaceThreads++;
+  if(NumSameSpaceThreads==1){
+    AllThreadsDone->P();
+  }
+  mutex->V();
+}
+void AddrSpace::removeThread(){
+  mutex->P();
+  NumSameSpaceThreads--;
+  if(NumSameSpaceThreads==0){
+     AllThreadsDone->V();
+  }
+  mutex->V();
+}
+int AddrSpace::getNumThread(){
+  return NumSameSpaceThreads;
+}
+void AddrSpace::callP(){
+  AllThreadsDone->P();
+}
+void AddrSpace::callJoinP(int numThread){
+   waiting_join[numThread]++;
+   JoinSemaphore[numThread]->P();
+}
+void AddrSpace::callJoinV(int numThread){
+   while(waiting_join[numThread] > 0)
+   {
+      JoinSemaphore[numThread]->V();
+      waiting_join[numThread]--;
+   }
+}
+
+void AddrSpace::thP()
+{
+   th->P();
+}
+
+void AddrSpace::thV()
+{
+   th->V();
+}
+#endif
 //----------------------------------------------------------------------
 // AddrSpace::~AddrSpace
 //      Dealloate an address space.  Nothing for now!

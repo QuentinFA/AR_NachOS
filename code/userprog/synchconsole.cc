@@ -10,7 +10,6 @@ static Semaphore *writeDone;
 
 static void ReadAvail(int arg)
 {
-   DEBUG('s',"=======>readAvail\n");
    readAvail->V();
 }
 
@@ -23,6 +22,9 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
    readAvail = new Semaphore("read avail", 0);
    writeDone = new Semaphore("write done", 0);
+
+   read = new Semaphore("read", 1);
+   write = new Semaphore("write", 1);
    console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
 }
 
@@ -35,19 +37,27 @@ SynchConsole::~SynchConsole()
 
 void SynchConsole::SynchPutChar(const char ch)
 {
+   read->P();
+
    console->PutChar(ch);
    writeDone->P();
+
+   read->V();
 }
 
 char SynchConsole::SynchGetChar()
 {
-   DEBUG('s'," ====>SynchGetChar \n");
+   read->P();
+
    readAvail->P();
-   return console->GetChar();
+   char ret=console->GetChar();
+   read->V();
+   return ret;
 }
 
 void SynchConsole::SynchPutString(const char s[])
 {
+  write->P();
    int i;
    for(i = 0; i < MAX_STRING_SIZE; i++)
    {
@@ -56,12 +66,14 @@ void SynchConsole::SynchPutString(const char s[])
       if(s[i] == '\0')
          break;
    }
-   DEBUG('s',"fin SynchPutString\n");
+
+  write->V();
 }
 
 void SynchConsole::SynchGetString(char *s, int n)
 {
-   int i = 0;
+  write->P();
+  int i = 0;
 
    while(i < n && i < MAX_STRING_SIZE)
    {
@@ -69,12 +81,13 @@ void SynchConsole::SynchGetString(char *s, int n)
       DEBUG('s',"avant GetChar %i \n", i );
       s[i] = console->GetChar();
       DEBUG('s',"==>apres getchar %i : %i\n", i, s[i]);
-      if(s[i] == EOF || s[i] == '\n'){
+      if(s[i] == EOF || s[i] == '\n')
          break;
-      }
       i++;
    }
    s[i] = '\0';
+
+  write->V();
 }
 
 void SynchConsole::SynchPutInt(int n)
@@ -84,16 +97,19 @@ void SynchConsole::SynchPutInt(int n)
 
    snprintf(str, MAX_STRING_SIZE, "%d", n);
 
+   write->P();
    for(i = 0; i < (int) strlen(str); i++)
    {
       console->PutChar(str[i]);
       writeDone->P();
    }
+   write->V();
+
 }
 
 int SynchConsole::SynchGetInt(int* res)
 {
-   //char str[MAX_STRING_SIZE];
+   // TODO Use of read Semephore
    char c;
    int n = 0;
    int valide = 1;
