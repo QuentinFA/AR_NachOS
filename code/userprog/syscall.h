@@ -40,6 +40,7 @@
 #define SC_UserThreadCreate 17
 #define SC_UserThreadExit 18
 #define SC_UserThreadJoin 19
+#define SC_ForkExec 20
 #endif
 
 
@@ -72,6 +73,7 @@
  int UserThreadCreate(void f(void *arg), void *arg);
  void UserThreadExit();
  void UserThreadJoin(int numThreadAttendu);
+ int ForkExec( char *s);
   #endif
 /* Stop Nachos, and print out performance stats */
 void Halt () __attribute__((noreturn));

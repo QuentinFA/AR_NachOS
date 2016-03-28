@@ -21,16 +21,15 @@ void t2(void *arg)
    UserThreadExit();
 }
 
-int main()
+ int main()
 {
-   int pid1;
-   int pid2;
-   pid1 = UserThreadCreate(t1, 0);
-   pid2 = UserThreadCreate(t2, 0);
-   UserThreadJoin(pid1);
-   UserThreadJoin(pid2);
-   PutChar('\n');
-   Halt();
+  int i=0;
+  for(i=0;i<4;i++){
+   UserThreadCreate(t1, 0);
+   UserThreadCreate(t2, 0);
+ }
+
+Exit(0);
 }
 
 #endif

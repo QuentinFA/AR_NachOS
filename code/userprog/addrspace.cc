@@ -22,24 +22,12 @@
 
 #include <strings.h>		/* for bzero */
 #ifdef CHANGED
-#include "synchdisk.h"
-#include "bitmap.h"
-#include "frameprovider.h"
-FrameProvider *frameprovider;
-static Semaphore *mutex;//Semaphore de protection de donnée partagée
-int NumSameSpaceThreads=0;//nombre de threads par addrSpace
-static Semaphore  *AllThreadsDone;//semaphore pour l'attente du thread main
-static Semaphore  *JoinSemaphore[10];//semaphore pour le join d'un thread utilisateur sur un autre thread utilisateur
-static int waiting_join[10];//compte le nombre de join sur un thread
-static Semaphore *th;
-
 static void  ReadAtVirtual( OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages){
 
   char* Tampon ;
 
   TranslationEntry *old_pageTable ;
   int old_numPages ;
-
 
   Tampon = new char [numBytes] ;
   executable->ReadAt (Tampon, numBytes, position);
@@ -102,24 +90,25 @@ SwapHeader (NoffHeader * noffH)
 AddrSpace::AddrSpace (OpenFile * executable)
 {
     #ifdef CHANGED
+    NumSameSpaceThreads=0;
+    Threads = new BitMap( NB_THREAD);
+    Threads->Mark(0);
     mutex = new Semaphore("mutex", 1);
     AllThreadsDone = new Semaphore("AllThreadsDone", 1);
     th = new Semaphore("uniqueThreadCreate", 1);
     int n=0;
-    for(n=0;n<10;n++)
-    {
+    for(n=0;n<10;n++){
       JoinSemaphore[n] = new Semaphore("JoinSemaphore", 0);
       waiting_join[n] = 0;
     }
-    frameprovider=new FrameProvider(NumPhysPages);
     #endif
     NoffHeader noffH;
     unsigned int i, size;
 
     executable->ReadAt ((char *) &noffH, sizeof (noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
-	(WordToHost (noffH.noffMagic) == NOFFMAGIC))
-	SwapHeader (&noffH);
+	  (WordToHost (noffH.noffMagic) == NOFFMAGIC))
+	  SwapHeader (&noffH);
     ASSERT (noffH.noffMagic == NOFFMAGIC);
 
 // how big is address space?
@@ -137,27 +126,17 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   numPages, size);
 
 
-      #ifdef CHANGED
+
       // first, set up the translation
           pageTable = new TranslationEntry[numPages];
               for (i = 0; i < numPages; i++)
                 {
                     pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-                    pageTable[i].physicalPage = frameprovider->GetEmptyFrame();
-                    pageTable[i].valid = TRUE;
-                    pageTable[i].use = FALSE;
-                    pageTable[i].dirty = FALSE;
-                    pageTable[i].readOnly = FALSE;	// if the code segment was entirely on
-                    // a separate page, we could set its
-                    // pages to be read-only
-                }
-      #else
-      // first, set up the translation
-          pageTable = new TranslationEntry[numPages];
-              for (i = 0; i < numPages; i++)
-                {
-                    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+                    #ifdef CHANGED
+                    pageTable[i].physicalPage = frameProvider->GetEmptyFrame();
+                    #else
                     pageTable[i].physicalPage = i;
+                    #endif
                     pageTable[i].valid = TRUE;
                     pageTable[i].use = FALSE;
                     pageTable[i].dirty = FALSE;
@@ -165,14 +144,12 @@ AddrSpace::AddrSpace (OpenFile * executable)
                     // a separate page, we could set its
                     // pages to be read-only
                 }
-      #endif
 
 #ifndef CHANGED
 // zero out the entire address space, to zero the unitialized data segment
 // and the stack segment
     bzero (machine->mainMemory, size);
-#endif
-
+  	#endif //CHANGED
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0)
@@ -206,16 +183,20 @@ AddrSpace::AddrSpace (OpenFile * executable)
 void AddrSpace::addThread(){
   mutex->P();
   NumSameSpaceThreads++;
+  DEBUG('y', "\nThread added to process %s total number of thread %d\n",currentThread->getName(),getNumThread());
   if(NumSameSpaceThreads==1){
     AllThreadsDone->P();
+     DEBUG('y', "\nblocage du thread principal %s\n",currentThread->getName());
   }
   mutex->V();
 }
 void AddrSpace::removeThread(){
   mutex->P();
   NumSameSpaceThreads--;
+    DEBUG('y', "\nThread removed to process %s total number of thread %d\n",currentThread->getName(),getNumThread());
   if(NumSameSpaceThreads==0){
      AllThreadsDone->V();
+     DEBUG('y', "\nliberation du thread principal  %s\n",currentThread->getName());
   }
   mutex->V();
 }
@@ -223,7 +204,10 @@ int AddrSpace::getNumThread(){
   return NumSameSpaceThreads;
 }
 void AddrSpace::callP(){
+ DEBUG('y', "Processus %s en attente de finition de %d thread \n",currentThread->getName(),getNumThread());
+
   AllThreadsDone->P();
+DEBUG('y', "Processus %s PLUS en attente \n",currentThread->getName());
 }
 void AddrSpace::callJoinP(int numThread){
    waiting_join[numThread]++;
@@ -256,9 +240,9 @@ void AddrSpace::thV()
 AddrSpace::~AddrSpace ()
 {
   #ifdef CHANGED
-  unsigned int i=0;
+  unsigned i;
   for(i=0;i<numPages;i++){
-    frameprovider->ReleaseFrame(pageTable[i].physicalPage);
+    frameProvider->ReleaseFrame(pageTable[i].physicalPage);
   }
   #endif
   // LB: Missing [] for delete

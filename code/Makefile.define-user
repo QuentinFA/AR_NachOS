@@ -83,7 +83,7 @@ USER_FLAVORS=$(ORIG_FLAVORS)
 
 USER_FLAVORS=step2
 
-$(eval $(call define-flavor,step2,userprog filesys-stub,synchconsole.cc userThread.cc frameprovider.cc))
+$(eval $(call define-flavor,step2,userprog filesys-stub,synchconsole.cc userThread.cc frameprovider.cc ForkExec.cc))
 
 # $(eval $(call define-flavor,step5,userprog filesys,\
 #     synchconsole.cc userthread.cc))

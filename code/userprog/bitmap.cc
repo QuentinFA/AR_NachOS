@@ -1,9 +1,9 @@
-// bitmap.c 
+// bitmap.c
 //      Routines to manage a bitmap -- an array of bits each of which
 //      can be either on or off.  Represented as an array of integers.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -105,7 +105,27 @@ BitMap::Find ()
 	  }
     return -1;
 }
-
+//----------------------------------------------------------------------
+// BitMap::Find(indice)
+//      Return the number of the first bit which is clear starting from indice
+//      As a side effect, set the bit (mark it as in use).
+//      (In other words, find and allocate a bit.)
+//
+//      If no bits are clear, return -1.
+//----------------------------------------------------------------------
+#ifdef CHANGED
+int
+BitMap::Find (int indice)
+{
+    for (int i = indice; i < numBits; i++)
+	if (!Test (i))
+	  {
+	      Mark (i);
+	      return i;
+	  }
+    return -1;
+}
+#endif
 //----------------------------------------------------------------------
 // BitMap::NumClear
 //      Return the number of clear bits in the bitmap.

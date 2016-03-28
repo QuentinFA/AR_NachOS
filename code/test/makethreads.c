@@ -72,16 +72,16 @@ int main() {
     UserThreadCreate(newThread1, 0);
     UserThreadCreate(newThread2, 0);
     UserThreadCreate(newThread3, 0);
-    //UserThreadCreate(newThread4, 0);
-  //  UserThreadCreate(newThread5, 0);
-/*    PutString("BonSoir\n");
+//UserThreadCreate(newThread4, 0);
+//  UserThreadCreate(newThread5, 0);
+/*  PutString("BonSoir\n");
     UserThreadCreate(newThread6, 0);
     UserThreadCreate(newThread7, 0);
     UserThreadCreate(newThread8, 0);
     UserThreadCreate(newThread9, 0);
     UserThreadCreate(newThread10, 0);
-    //UserThreadCreate(newThread11, 0);
-    //UserThreadCreate(newThread12, 0);
+  //UserThreadCreate(newThread11, 0);
+  //UserThreadCreate(newThread12, 0);
 */
     Halt();
 }

@@ -30,8 +30,10 @@ main ()
 
 	  if (i > 0)
 	    {
-		newProc = Exec (buffer);
-		Join (newProc);
+      		newProc = Exec (buffer);
+      		Join (newProc);
 	    }
       }
+
+  Exit(0);
 }

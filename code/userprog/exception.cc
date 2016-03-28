@@ -28,6 +28,7 @@
 #ifdef CHANGED
    #include "machine.h"
    #include "userThread.h"
+   #include "ForkExec.h"
 #endif
 
 //----------------------------------------------------------------------
@@ -106,9 +107,20 @@ void ExceptionHandler (ExceptionType which)
          {
             DEBUG('a', "Shutdown, initiated by user program.\n");
             currentThread->space->callP();//wating for all threads t finish
+            delete currentThread->space;
             interrupt->Halt();//halting
             break;
          }
+         case SC_Exit:{
+
+              currentThread->space->callP();//wating for all threads t finish
+              DEBUG('y', "\nExiting process  %s \n",currentThread->getName());
+              removeProcess();//decreasing the number of process running
+              delete currentThread->space;//freeing all the ressources
+              AttenteProcessus();//waiting for all the processes to finish
+              interrupt->Halt ();//halting the program
+            break;
+          }
          case SC_PutChar:
          {
             synchconsole->SynchPutChar((char) machine->ReadRegister(4));
@@ -137,7 +149,6 @@ void ExceptionHandler (ExceptionType which)
             copyStringFromMachine(sizeMips, str, size);
 
             delete[] str;
-
             break;
          }
          case SC_GetInt:
@@ -177,10 +188,17 @@ void ExceptionHandler (ExceptionType which)
          }
          case SC_UserThreadJoin:
          {
-
             do_UserThreadJoin(machine->ReadRegister(4));
             break;
          }
+         case SC_ForkExec:
+         {
+            char s[MAX_STRING_SIZE];
+            copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
+            do_ForkExec(s);
+            break;
+         }
+
          default:
          {
             printf("Unexpected user mode exception %d %d\n", which, type);

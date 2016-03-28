@@ -30,9 +30,13 @@ SynchDisk *synchDisk;
 #ifdef USER_PROGRAM		// requires either FILESYS or FILESYS_STUB
 Machine *machine;		// user program memory and registers
    #ifdef CHANGED
-      SynchConsole *synchconsole;
-      BitMap *Threads;
+   #include "synch.h"
+   static Semaphore *mutex;
+   static Semaphore *attenteProc;
+  SynchConsole *synchconsole;
 
+      int numProcess=0;
+     FrameProvider *frameProvider;
    #endif
 #endif
 
@@ -163,9 +167,12 @@ Initialize (int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
       #ifdef CHANGED
+       mutex = new Semaphore("mutex", 1);
+       attenteProc = new Semaphore("mutex", 1);
 	  synchconsole = new SynchConsole(NULL,NULL);
-    Threads = new BitMap( NB_THREAD);
-    Threads->Mark(0);
+
+
+    frameProvider = new FrameProvider(NumPhysPages);
 	  #endif
 #endif
 
@@ -181,7 +188,31 @@ Initialize (int argc, char **argv)
     postOffice = new PostOffice (netname, rely, 10);
 #endif
 }
+#ifdef CHANGED
+void addProcess(){
+  mutex->P();
+	numProcess++;
+  if(numProcess==1)
+  attenteProc->P();
+  DEBUG('y', "\nAdding process:Number of current process numProcess %d\n",GetNumProcess());
+  mutex->V();
+}
 
+void removeProcess(){
+  mutex->P();
+  numProcess--;
+  if(numProcess==0)
+  attenteProc->V();
+    DEBUG('y', "\nRemoving process:Number of current process numProcess %d\n",GetNumProcess());
+  mutex->V();
+}
+int GetNumProcess(){
+  return numProcess;
+}
+void AttenteProcessus(){
+  attenteProc->P();
+}
+#endif //CHANGED
 //----------------------------------------------------------------------
 // Cleanup
 //      Nachos is halting.  De-allocate global data structures.

@@ -43,6 +43,7 @@
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
+
 #endif
 
 // CPU register state to be saved on context switch.
@@ -97,6 +98,7 @@ class Thread
     // basic thread operations
      #ifdef CHANGED
      int getArgs();
+     void ForkExec (VoidFunctionPtr func, int arg);
      #endif
     void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
     void Yield ();		// Relinquish the CPU if any
