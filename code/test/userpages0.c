@@ -24,10 +24,11 @@ void t2(void *arg)
  int main()
 {
   int i=0;
-  for(i=0;i<4;i++){
+  for(i=0;i<4;i++)
+
    UserThreadCreate(t1, 0);
    UserThreadCreate(t2, 0);
- }
+ 
 
 Exit(0);
 }

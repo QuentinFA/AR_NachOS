@@ -6,6 +6,6 @@ int main()
   for(i=0;i<6;i++){
   ForkExec("build/userpages1");
   ForkExec("build/userpages0");
-}
+  }
   Exit(0);
 }

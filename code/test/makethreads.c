@@ -3,26 +3,28 @@
 
 
 void newThread1(void * arg) {
-//    PutString("fini d'attendre\n");
-
+    PutString("Execution du thread réussi\n");
+  //  PutChar('a');
+  //  PutChar('b');
+  //  PutChar('\n');
 //UserThreadJoin(1,3);
-    PutChar('2');
+  /*  PutChar('2');
     PutChar('\n');
     UserThreadJoin(2);
     PutChar('e');
-    PutChar('\n');
+    PutChar('\n');*/
     UserThreadExit();
 }
 void newThread2(void * arg) {
 
     PutString("Thread 2\n");
-    PutChar('\n');
-    PutChar('\n');
-    PutChar('\n');
-    PutChar('\n');
-    PutChar('\n');
-    PutChar('\n');
-    PutChar('\n');
+    /*PutChar('a');
+    PutChar('f');
+    PutChar('c');
+    PutChar('v');
+    PutChar('t');
+    PutChar('h');
+    PutChar('\n');*/
     //UserThreadJoin(3);
     UserThreadExit();
 }
@@ -72,17 +74,17 @@ int main() {
     UserThreadCreate(newThread1, 0);
     UserThreadCreate(newThread2, 0);
     UserThreadCreate(newThread3, 0);
-//UserThreadCreate(newThread4, 0);
-//  UserThreadCreate(newThread5, 0);
-/*  PutString("BonSoir\n");
+    UserThreadCreate(newThread4, 0);
+    UserThreadCreate(newThread5, 0);
+  PutString("BonSoir\n");
     UserThreadCreate(newThread6, 0);
     UserThreadCreate(newThread7, 0);
     UserThreadCreate(newThread8, 0);
     UserThreadCreate(newThread9, 0);
     UserThreadCreate(newThread10, 0);
-  //UserThreadCreate(newThread11, 0);
-  //UserThreadCreate(newThread12, 0);
-*/
+    UserThreadCreate(newThread11, 0);
+    UserThreadCreate(newThread12, 0);
+
     Halt();
 }
 #endif

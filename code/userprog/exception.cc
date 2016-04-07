@@ -29,6 +29,7 @@
    #include "machine.h"
    #include "userThread.h"
    #include "ForkExec.h"
+   #include "shell.h"
 #endif
 
 //----------------------------------------------------------------------
@@ -148,7 +149,6 @@ void ExceptionHandler (ExceptionType which)
    if (which == SyscallException)
    {
       DEBUG('s'," SC number : %i ",type);
-
       switch (type)
       {
          case SC_Halt:
@@ -184,6 +184,8 @@ void ExceptionHandler (ExceptionType which)
          }
          case SC_GetChar:
          {
+           DEBUG('a', "GetChar, initiated by user program.\n");
+
             int r = (int) synchconsole->SynchGetChar();
             machine->WriteRegister(2, r);
             break;
@@ -247,6 +249,12 @@ void ExceptionHandler (ExceptionType which)
             copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
             do_ForkExec(s);
             break;
+         }
+         case SC_Shell:
+         {
+        //   printf("salut\n" );
+           do_shell();
+           break;
          }
 
          default:

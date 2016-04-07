@@ -66,6 +66,7 @@ extern void MailTest (int networkID);
 
 #ifdef CHANGED
 extern void SynchConsoleTest(char *in, char *out);
+extern void do_shell ();
 #endif
 
 //----------------------------------------------------------------------
@@ -128,20 +129,6 @@ main (int argc, char **argv)
 		// for console input
 	    }
 
-      #ifdef CHANGED
-      else if(!strcmp(*argv, "-sc"))
-      {
-         if(argc == 1)
-            SynchConsoleTest(NULL, NULL);
-         else
-         {
-            ASSERT(argc > 2);
-            SynchConsoleTest(*(argv + 1), *(argv + 2));
-            argCount = 3;
-         }
-       }
-       interrupt->Halt ();
-       #endif
 #endif // USER_PROGRAM
 #ifdef FILESYS
 	  if (!strcmp (*argv, "-cp"))
@@ -175,6 +162,12 @@ main (int argc, char **argv)
 	    {			// performance test
 		PerformanceTest ();
 	    }
+      #ifdef CHANGED
+      else if (!strcmp (*argv, "-sh"))
+        {			// performance test
+      do_shell();
+        }
+        #endif
 #endif // FILESYS
 #ifdef NETWORK
 	  if (!strcmp (*argv, "-o"))

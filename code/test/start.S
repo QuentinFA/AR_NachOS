@@ -51,29 +51,7 @@ Halt:
 
 
 
-	.globl PutChar
-	.ent   PutChar
-PutChar:
-	addiu $2,$0,SC_PutChar
-	syscall
-	j	$31
-	.end PutChar
 
-	.globl PutString
-	.ent   PutString
-PutString:
-	addiu $2,$0,SC_PutString
-	syscall
-	j	$31
-	.end PutString
-
-	.globl GetString
-	.ent   GetString
-GetString:
-	addiu $2,$0,SC_GetString
-	syscall
-	j	$31
-	.end GetString
 
 	.globl Exit
 	.ent	Exit
@@ -212,4 +190,44 @@ addiu $2, $0, SC_ForkExec
 syscall
 j	$31
 .end ForkExec
+
+.globl PutChar
+.ent   PutChar
+PutChar:
+addiu $2,$0,SC_PutChar
+syscall
+j	$31
+.end PutChar
+
+.globl PutString
+.ent   PutString
+PutString:
+addiu $2,$0,SC_PutString
+syscall
+j	$31
+.end PutString
+
+.globl GetString
+.ent   GetString
+GetString:
+addiu $2,$0,SC_GetString
+syscall
+j	$31
+.end GetString
+
+.globl GetChar
+.ent   GetChar
+GetChar:
+addiu $2,$0,SC_GetChar
+syscall
+j	$31
+.end GetChar
+
+.globl Shell
+.ent   Shell
+Shell:
+addiu $2,$0,SC_Shell
+syscall
+j	$31
+.end Shell
 #endif

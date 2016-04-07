@@ -96,6 +96,7 @@ ConsoleTest (char *in, char *out)
   //  console->PutChar (ch);  // echo it!
    // writeDone->P ();  // wait for write to finish
       #ifdef CHANGED
+
           if (ch==EOF )
               return;
           else if(ch=='\n'){
@@ -125,13 +126,14 @@ ConsoleTest (char *in, char *out)
   #ifdef CHANGED
     void SynchConsoleTest (char *in, char *out)
     {
-        char ch;
+
         SynchConsole *synchconsole1 = new SynchConsole(in, out);
 
+        for(int i =0; i<10000000;i++);
       for (;;)
        {
-         ch = synchconsole1->SynchGetChar();
-          if (ch==EOF ){
+         char ch = synchconsole1->SynchGetChar();
+          if (ch == EOF ){
             fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
               return;
           }

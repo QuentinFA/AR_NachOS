@@ -1,4 +1,4 @@
-// directory.cc 
+// directory.cc
 //	Routines to manage a directory of file names.
 //
 //	The directory is a table of fixed length entries; each
@@ -17,7 +17,7 @@
 //	Fixing this is one of the parts to the assignment.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -41,17 +41,97 @@ Directory::Directory(int size)
     tableSize = size;
     for (int i = 0; i < tableSize; i++)
 	table[i].inUse = FALSE;
+  #ifdef CHANGED
+int sector = 1;
+int parentSector = 1; // pas de parent pour la racine
+implementDirectoryHierarchy(sector, parentSector);
+  #endif
 }
 
+#ifdef CHANGED
+Directory::Directory(int size,int sector,int parentSector)
+{
+    table = new DirectoryEntry[size];
+    tableSize = size;
+    for (int i = 2; i < tableSize; i++)
+	table[i].inUse = FALSE;
+  implementDirectoryHierarchy(sector,parentSector);
+}
+
+void Directory::implementDirectoryHierarchy(int sector,int parentSector){
+      //ajout des pointeurs vers les dossiers
+      table[0].inUse=true;
+      table[0].sector = sector;
+      strcpy(table[0].name, ".");
+
+      table[1].inUse=true;
+      table[1].sector = parentSector;
+      strcpy(table[1].name, "..");
+
+}
+bool Directory::isFull() {
+  for (int i = 2; i < tableSize; i++) {
+    if(table[i].inUse == false)
+      return false;
+  }
+  return true;
+}
+
+//return true if there is nothing in the directory
+bool Directory::isEmpty() {
+  //we don't check the "." and ".." entries
+  for (int i = 2; i < tableSize; i++) {
+    if (table[i].inUse == true)
+      return false;
+  }
+  return true;
+}
+
+
+bool Directory::isRoot() {
+    // ". == ".."
+    return (table[0].sector == table[1].sector);
+};
+
+char * Directory::getNameFromSector(int sector) {
+    for (int i = 2; i < tableSize; i++)
+        if (table[i].sector == sector) {
+            return table[i].name;
+        }
+    return NULL;
+};
+
+int Directory::getSector(int position) {
+    return this->table[position].sector;
+}
+
+int Directory::getCurrentSector() {
+    return this->getSector(0);
+}
+
+int Directory::getParentSector() {
+    return this->getSector(1);
+}
+
+bool Directory::Remove(int sector)
+{
+    for (int i = 2; i < tableSize; i++)
+        if (table[i].sector == sector) {
+            table[i].inUse = false;
+            return true;
+        }
+    return false;
+}
+#endif
 //----------------------------------------------------------------------
 // Directory::~Directory
 // 	De-allocate directory data structure.
 //----------------------------------------------------------------------
 
 Directory::~Directory()
-{ 
+{
     delete [] table;
-} 
+}
 
 //----------------------------------------------------------------------
 // Directory::FetchFrom
@@ -99,7 +179,7 @@ Directory::FindIndex(const char *name)
 //----------------------------------------------------------------------
 // Directory::Find
 // 	Look up file name in directory, and return the disk sector number
-//	where the file's header is stored. Return -1 if the name isn't 
+//	where the file's header is stored. Return -1 if the name isn't
 //	in the directory.
 //
 //	"name" -- the file name to look up
@@ -128,14 +208,17 @@ Directory::Find(const char *name)
 
 bool
 Directory::Add(const char *name, int newSector)
-{ 
+{
     if (FindIndex(name) != -1)
 	return FALSE;
-
-    for (int i = 0; i < tableSize; i++)
+#ifdef CHANGED
+    for (int i = 2; i < tableSize; i++)
+#else
+  for (int i = 0; i < tableSize; i++)
+#endif
         if (!table[i].inUse) {
             table[i].inUse = TRUE;
-            strncpy(table[i].name, name, FileNameMaxLen); 
+            strncpy(table[i].name, name, FileNameMaxLen);
             table[i].sector = newSector;
         return TRUE;
 	}
@@ -145,25 +228,25 @@ Directory::Add(const char *name, int newSector)
 //----------------------------------------------------------------------
 // Directory::Remove
 // 	Remove a file name from the directory.  Return TRUE if successful;
-//	return FALSE if the file isn't in the directory. 
+//	return FALSE if the file isn't in the directory.
 //
 //	"name" -- the file name to be removed
 //----------------------------------------------------------------------
 
 bool
 Directory::Remove(const char *name)
-{ 
+{
     int i = FindIndex(name);
 
     if (i == -1)
 	return FALSE; 		// name not in directory
     table[i].inUse = FALSE;
-    return TRUE;	
+    return TRUE;
 }
 
 //----------------------------------------------------------------------
 // Directory::List
-// 	List all the file names in the directory. 
+// 	List all the file names in the directory.
 //----------------------------------------------------------------------
 
 void
@@ -182,7 +265,7 @@ Directory::List()
 
 void
 Directory::Print()
-{ 
+{
     FileHeader *hdr = new FileHeader;
 
     printf("Directory contents:\n");

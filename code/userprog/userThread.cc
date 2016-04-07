@@ -31,7 +31,7 @@ int do_UserThreadCreate(int f, int arg){
    }
 }
 
-void do_UserThreadExit(){
+void do_UserThreadExit() {
 
   fc_arg *farg=(fc_arg*)currentThread->getArgs();
   int numThread=farg->numThread;
@@ -68,7 +68,6 @@ void do_UserThreadJoin(int numThreadAttendu){
     machine->WriteRegister(4, arg);
     machine->Run();
     delete farg;
-
 }
 
 #endif
